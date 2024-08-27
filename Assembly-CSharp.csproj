@@ -60,12 +60,8 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.43f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\AI\HideState.cs" />
-    <Compile Include="Assets\AI\IdleState.cs" />
-    <Compile Include="Assets\AI\StateManager.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\AI\ChaseState.cs" />
-    <Compile Include="Assets\AI\State.cs" />
+    <Compile Include="Assets\AI\EnemyAI.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
