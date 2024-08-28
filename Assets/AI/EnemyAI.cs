@@ -6,18 +6,22 @@ using UnityEngine.AI;
 public class EnemyAI : MonoBehaviour
 {
     public NavMeshAgent agent;
-
     public Transform player;
-
-    public LayerMask whatIsGround, whatIsPlayer;
-
+    public LayerMask whatIsGround, whatIsPlayer, whatIsObstacle;
     public float health = 10;  // Set a default health value
 
-
-    //States
-    public float sightRange = 20;
+    //Enemy Attributes
+    public float sightRange = 20f;
     public bool playerInSightRange = false;
-    private float enemySpeed = 5;
+    public float enemySpeed = 5f;
+    public float enemyReach = 2f;
+
+
+    private EnemyState currentState;
+
+    private PatrolState patrolState = new PatrolState();
+    private ChaseState chaseState = new ChaseState();
+    private HideState hideState = new HideState();
 
     private void Awake()
     {
@@ -25,44 +29,163 @@ public class EnemyAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
     }
 
+    private void Start()
+    {
+        currentState = patrolState;
+        currentState.EnterState(this);
+    }
+
     private void Update()
     {
-        //Check for sight and attack range
+        // Update current state logic
+        currentState.UpdateState(this);
+
+        // Check for sight range
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
 
-        if (!playerInSightRange)
-            Patroling();
-        else
-            ChasePlayer();
+        // Transition based on player visibility
+        if (!playerInSightRange && currentState != patrolState)
+            TransitionToState(patrolState);
+        else if (playerInSightRange && currentState != chaseState)
+            //TransitionToState(chaseState);
+            TransitionToState(hideState);
     }
 
-    private void Patroling()
+    public void TransitionToState(EnemyState state)
     {
-        if (agent.remainingDistance < 0.5f)
-        {
-            float x = Random.Range(-11, 11);
-            float z = Random.Range(-11, 11);
-            Vector3 position = new Vector3(x, 0f, z);
-            agent.SetDestination(position);
-            //Debug.Log($"Patrolling to {patrolPoints[currentPatrolPointIndex].position}");
-        }
+        currentState = state;
+        currentState.EnterState(this);
     }
 
-    private void ChasePlayer()
+    // Base state class
+    public abstract class EnemyState
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        public abstract void EnterState(EnemyAI enemy);
+        public abstract void UpdateState(EnemyAI enemy);
+    }
 
-        if (distanceToPlayer > 4f)
+    // Patrol state class
+    private class PatrolState : EnemyState
+    {
+        public override void EnterState(EnemyAI enemy)
         {
-            agent.SetDestination(player.position);
-            agent.speed = enemySpeed;
-            Debug.Log($"Chasing Player {player.position}");
+            Debug.Log("Entering Patrol State");
         }
-        else
+
+        public override void UpdateState(EnemyAI enemy)
         {
-            agent.isStopped = true;
-            Debug.Log($"Chasing Player {player.position}. Slowing down.");
+            if (enemy.agent.remainingDistance < 0.5f)
+            {
+                float x = Random.Range(-11, 11);
+                float z = Random.Range(-11, 11);
+                Vector3 position = new Vector3(x, 0f, z);
+                enemy.agent.SetDestination(position);
+                Debug.Log($"Patrolling to {position}");
+            }
         }
     }
 
+    //Hide State class
+    private class HideState : EnemyState
+    {
+        public override void EnterState(EnemyAI enemy)
+        {
+            Debug.Log("Entering Hide State");
+            Vector3 hideSpot = FindHidingSpot(enemy);
+            enemy.agent.SetDestination(hideSpot);
+            enemy.agent.isStopped = false;
+
+            Debug.Log($"Hiding at {hideSpot}");
+        }
+
+        public override void UpdateState(EnemyAI enemy)
+        {
+            Debug.Log("Hiding Update");
+            if (enemy.agent.remainingDistance < 0.5f)
+            {
+                Debug.Log("Enemy is hiding.");
+                enemy.agent.isStopped = true;
+            }
+        }
+        private Vector3 FindHidingSpot(EnemyAI enemy)
+        {
+            // Find obstacles within the search radius
+            Collider[] obstacles = Physics.OverlapSphere(enemy.transform.position, enemy.sightRange, enemy.whatIsObstacle);
+            Vector3 bestHidingSpot = enemy.transform.position;
+            float bestHidingSpotDistance = Mathf.Infinity;
+
+            foreach (var obstacle in obstacles)
+            {
+                // Calculate a position behind the obstacle relative to the player's position
+                Vector3 directionToPlayer = (enemy.player.position - obstacle.transform.position).normalized;
+                Vector3 potentialHidingSpot = obstacle.transform.position - directionToPlayer * 2f;
+
+                // Check if the potential hiding spot is occluded from the player's line of sight
+                if (IsOccludedFromPlayer(potentialHidingSpot, enemy))
+                {
+                    float distanceToPlayer = Vector3.Distance(potentialHidingSpot, enemy.player.position);
+                    if (distanceToPlayer < bestHidingSpotDistance)
+                    {
+                        bestHidingSpot = potentialHidingSpot;
+                        bestHidingSpotDistance = distanceToPlayer;
+                    }
+                }
+            }
+
+            // If no good hiding spots are found, default to a random position
+            if (bestHidingSpot == enemy.transform.position)
+            {
+                bestHidingSpot = new Vector3(Random.Range(-11, 11), 0f, Random.Range(-11, 11));
+            }
+
+            return bestHidingSpot;
+        }
+        private bool IsOccludedFromPlayer(Vector3 spot, EnemyAI enemy)
+        {
+            Vector3 directionToPlayer = enemy.player.position - spot;
+            Ray ray = new Ray(spot, directionToPlayer);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, directionToPlayer.magnitude))
+            {
+                if (hit.transform != enemy.player)
+                {
+                    // If the ray hits something that is not the player, the spot is occluded
+                    return true;
+                }
+            }
+
+            // If the ray hits the player directly, the spot is not occluded
+            return false;
+        }
+    }
+
+    // Chase state class
+    private class ChaseState : EnemyState
+    {
+        public override void EnterState(EnemyAI enemy)
+        {
+            Debug.Log("Entering Chase State");
+            enemy.agent.isStopped = false;  // Ensure the agent starts moving again if stopped
+        }
+
+        public override void UpdateState(EnemyAI enemy)
+        {
+            float distanceToPlayer = Vector3.Distance(enemy.transform.position, enemy.player.position);
+
+            if (distanceToPlayer > enemy.enemyReach)
+            {
+                enemy.agent.isStopped = false;
+                enemy.agent.SetDestination(enemy.player.position);
+                enemy.agent.speed = enemy.enemySpeed;
+                Debug.Log($"Chasing Player {enemy.player.position}");
+            }
+            else
+            {
+                enemy.agent.isStopped = true;
+                enemy.agent.SetDestination(enemy.transform.position);  // Stop the agent at the current position
+                Debug.Log($"Chasing Player {enemy.player.position}. Slowing down.");
+            }
+        }
+    }
 }
