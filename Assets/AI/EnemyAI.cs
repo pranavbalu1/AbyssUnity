@@ -14,6 +14,7 @@ public class EnemyAI : MonoBehaviour
     public float sightRange = 20f;
     public bool playerInSightRange = false;
     public float enemySpeed = 5f;
+    public float enemyAcceleration = 1f;
     public float enemyReach = 2f;
 
 
@@ -27,6 +28,8 @@ public class EnemyAI : MonoBehaviour
     {
         player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
+        agent.speed = enemySpeed;
+        agent.acceleration = enemyAcceleration;
     }
 
     private void Start()
@@ -74,7 +77,7 @@ public class EnemyAI : MonoBehaviour
 
         public override void UpdateState(EnemyAI enemy)
         {
-            if (enemy.agent.remainingDistance < 0.5f)
+            if (enemy.agent.remainingDistance < 5f)
             {
                 float x = Random.Range(-11, 11);
                 float z = Random.Range(-11, 11);
@@ -177,7 +180,6 @@ public class EnemyAI : MonoBehaviour
             {
                 enemy.agent.isStopped = false;
                 enemy.agent.SetDestination(enemy.player.position);
-                enemy.agent.speed = enemy.enemySpeed;
                 Debug.Log($"Chasing Player {enemy.player.position}");
             }
             else
