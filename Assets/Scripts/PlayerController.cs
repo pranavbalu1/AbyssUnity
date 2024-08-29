@@ -11,61 +11,89 @@ public class PlayerController : MonoBehaviour
     public float jumpPower = 7f;
     public float gravity = 10f;
 
-
     public float lookSpeed = 2f;
     public float lookXLimit = 45f;
 
+    private CharacterController characterController;
+    private Vector3 moveDirection = Vector3.zero;
+    private float rotationX = 0;
 
-    Vector3 moveDirection = Vector3.zero;
-    float rotationX = 0;
+    private bool canMove = true;
 
-    public bool canMove = true;
-
-
-    CharacterController characterController;
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        // Get the CharacterController component
         characterController = GetComponent<CharacterController>();
+
+        // Lock the cursor to the center of the screen and hide it
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        // Handle player movement
+        HandleMovement();
+
+        // Handle player rotation
+        HandleRotation();
+    }
+
+    private void HandleMovement()
+    {
+        // Get the forward and right directions based on the player's transform
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        // Press Left Shift to run
+        // Check if the player is running
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
+
+        // Calculate the current speed in the x and y directions
         float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
         float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
+
+        // Store the current y direction of movement
         float movementDirectionY = moveDirection.y;
+
+        // Calculate the move direction based on the forward and right directions and the current speeds
         moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+
+        // Check if the player is jumping and can move and is grounded
         if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
         {
+            // Set the y direction of movement to the jump power
             moveDirection.y = jumpPower;
         }
         else
         {
+            // Keep the previous y direction of movement
             moveDirection.y = movementDirectionY;
         }
 
+        // Apply gravity to the move direction if the player is not grounded
         if (!characterController.isGrounded)
         {
             moveDirection.y -= gravity * Time.deltaTime;
         }
 
+        // Move the character controller based on the move direction
         characterController.Move(moveDirection * Time.deltaTime);
+    }
 
-        if (canMove)
-        {
-            rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
-            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-            transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
-        }
+    private void HandleRotation()
+    {
+        // Check if the player can move
+        if (!canMove)
+            return;
 
+        // Calculate the rotation around the x-axis based on the mouse input
+        rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+
+        // Apply the rotation to the player camera
+        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+
+        // Rotate the player around the y-axis based on the mouse input
+        transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
     }
 }
