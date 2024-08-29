@@ -18,6 +18,7 @@ public class EnemyAI : MonoBehaviour
     public float enemyReach = 2f;
 
 
+
     private EnemyState currentState;
 
     private PatrolState patrolState = new PatrolState();
@@ -49,7 +50,8 @@ public class EnemyAI : MonoBehaviour
         // Transition based on player visibility
         if (!playerInSightRange && currentState != patrolState)
             TransitionToState(patrolState);
-        else if (playerInSightRange && currentState != hideState)
+        else if (playerInSightRange && currentState != chaseState)
+            //TransitionToState(chaseState);
             TransitionToState(hideState);
     }
 
@@ -143,7 +145,7 @@ public class EnemyAI : MonoBehaviour
             if (bestHidingSpot == enemy.transform.position)
             {
                 
-                Debug.Log("No hiding spots found. Picking random spot.");
+                Debug.Log("No hiding spots found.");
             }
 
             return bestHidingSpot;
