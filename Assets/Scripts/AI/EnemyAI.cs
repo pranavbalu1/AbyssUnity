@@ -16,7 +16,6 @@ public class EnemyAI : MonoBehaviour
     public float enemySpeed = 5f;
     public float enemyAcceleration = 8f;
     public float enemyReach = 2f;
-    public bool isTrapped = false;
 
 
 
@@ -25,11 +24,10 @@ public class EnemyAI : MonoBehaviour
     private PatrolState patrolState = new PatrolState();
     private ChaseState chaseState = new ChaseState();
     private HideState hideState = new HideState();
-    private TrappedState trappedState = new TrappedState();
 
     private void Awake()
     {
-        //player = GameObject.Find("Player").transform;
+        player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
         agent.speed = enemySpeed;
         agent.acceleration = enemyAcceleration;
@@ -52,24 +50,24 @@ public class EnemyAI : MonoBehaviour
         // Transition based on player visibility
         if (!playerInSightRange && currentState != patrolState)
             TransitionToState(patrolState);
-        else if (playerInSightRange && currentState != hideState)
+        else if (playerInSightRange && currentState != chaseState)
+            //TransitionToState(chaseState);
             TransitionToState(hideState);
-
-        if (isTrapped)
-        {
-            TransitionToState(trappedState);
-        }
     }
 
 
- 
-
+    public void isTrapped()
+    {
+        Debug.Log("Enemy is trapped");
+    }
 
     public void TransitionToState(EnemyState state)
     {
         currentState = state;
         currentState.EnterState(this);
     }
+
+
 
     // Base state class
     public abstract class EnemyState
@@ -94,7 +92,7 @@ public class EnemyAI : MonoBehaviour
                 float z = Random.Range(-11, 11);
                 Vector3 position = new Vector3(x, 0f, z);
                 enemy.agent.SetDestination(position);
-                //Debug.Log($"Patrolling to {position}");
+                Debug.Log($"Patrolling to {position}");
             }
         }
     }
@@ -150,11 +148,11 @@ public class EnemyAI : MonoBehaviour
                     }
                 }
             }
-            
+
             // If no good hiding spots are found, default to a random position
             if (bestHidingSpot == enemy.transform.position)
             {
-                
+
                 Debug.Log("No hiding spots found.");
             }
 
@@ -208,18 +206,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private class TrappedState : EnemyState
-    {
-        public override void EnterState(EnemyAI enemy)
-        {
-            Debug.Log("Entering Trapped State");
-            enemy.agent.speed *= 0.1f;
-        }
 
-        public override void UpdateState(EnemyAI enemy)
-        {
-            Debug.Log("Trapped Update");
-        }
-    }
 
 }
