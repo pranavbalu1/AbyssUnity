@@ -96,4 +96,28 @@ public class PlayerController : MonoBehaviour
         // Rotate the player around the y-axis based on the mouse input
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
     }
+
+    //sticky movement when near trap object
+    public void setStickyMovement()
+    {
+        //reduce the speed of the player by 90%
+        walkSpeed = walkSpeed * 0.1f;
+        runSpeed = runSpeed * 0.1f;
+
+    }
+
+    //reset the speed of the player
+    public void setNormalMovement()
+    {
+        walkSpeed = 6f;
+        runSpeed = 12f;
+    }
+
+    public void isTrapped(bool inTrap)
+    {
+        //trigger some animation to player when trapped
+        Debug.Log($"Player is trapped (from player.cs) {inTrap}");
+    }
+
+
 }
