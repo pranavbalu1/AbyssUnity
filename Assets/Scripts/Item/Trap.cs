@@ -6,47 +6,60 @@ using UnityEngine;
 
 public class TrapTrigger : MonoBehaviour
 {
-
-    private bool actOnPLayer = false;
+    private bool actOnPlayer = true;
     private bool actOnEnemy = true;
 
     void OnTriggerEnter(Collider collider)
     {
         GameObject otherObj = collider.gameObject;
+        Debug.Log("Triggered enter with: " + otherObj);
 
         if (otherObj.CompareTag("Player") || otherObj.CompareTag("Enemy"))
         {
             Debug.Log("Triggered enter with: " + otherObj);
-            if (otherObj.CompareTag("Player") && actOnPLayer)
+
+            // Check if the object has the PlayerController component
+            PlayerController playerController = otherObj.GetComponent<PlayerController>();
+            if (otherObj.CompareTag("Player") && actOnPlayer && playerController != null)
             {
-                otherObj.GetComponent<PlayerController>().setStickyMovement();
-                otherObj.GetComponent<PlayerController>().isTrapped(true);
+                playerController.SetStickyMovement();
+                playerController.IsTrapped(true);
             }
-            
-            if (otherObj.CompareTag("Enemy") && actOnEnemy)
+            else if (otherObj.CompareTag("Player") && playerController == null)
+            {
+                Debug.LogError("PlayerController component is missing on the Player object.");
+            }
+
+            // Check if the object has the EnemyAI component
+            EnemyAI enemyAI = otherObj.GetComponent<EnemyAI>();
+            if (otherObj.CompareTag("Enemy") && actOnEnemy && enemyAI != null)
             {
                 Debug.Log("Enemy is trapped");
-                otherObj.GetComponent<EnemyAI>().isTrapped();
+                enemyAI.SetIsTrapped(true);
+            }
+            else if (otherObj.CompareTag("Enemy") && enemyAI == null)
+            {
+                Debug.LogError("EnemyAI component is missing on the Enemy object.");
             }
         }
     }
+
 
     private void OnTriggerStay(Collider collider)
     {
         GameObject otherObj = collider.gameObject;
         //Trigger some animation
-        if (collider.gameObject.CompareTag("Player") || otherObj.CompareTag("Enemy"))
+        if (otherObj.CompareTag("Player") || otherObj.CompareTag("Enemy"))
         {
-            Debug.Log("Triggered stay with: " + collider.gameObject);
-            if (otherObj.CompareTag("Player") && actOnPLayer )
+            Debug.Log("Triggered stay with: " + otherObj);
+            if (otherObj.CompareTag("Player") && actOnPlayer)
             {
                 // Handle player stay logic
-               // otherObj.GetComponent<PlayerController>().ReduceSpeed(0.1f);
             }
 
             if (otherObj.CompareTag("Enemy") && actOnEnemy)
             {
-                //otherObj.GetComponent<EnemyAI>().enemySpeed = 0.1f;
+                // Handle enemy stay logic
             }
         }
     }
@@ -58,15 +71,17 @@ public class TrapTrigger : MonoBehaviour
         if (otherObj.CompareTag("Player") || otherObj.CompareTag("Enemy"))
         {
             Debug.Log("Triggered exit with: " + otherObj);
-            if (otherObj.CompareTag("Player") && actOnPLayer)
+            if (otherObj.CompareTag("Player") && actOnPlayer)
             {
-                otherObj.GetComponent<PlayerController>().setNormalMovement();
-                otherObj.GetComponent<PlayerController>().isTrapped(false);
+                otherObj.GetComponent<PlayerController>().SetNormalMovement();
+                otherObj.GetComponent<PlayerController>().IsTrapped(false);
             }
-            
+
             if (otherObj.CompareTag("Enemy") && actOnEnemy)
             {
-                //otherObj.GetComponent<EnemyAI>().isTrapped = false;
+                // Handle enemy exit logic
+                otherObj.GetComponent<EnemyAI>().SetIsTrapped(false);
+
             }
         }
     }

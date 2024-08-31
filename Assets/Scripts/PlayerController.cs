@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //sticky movement when near trap object
-    public void setStickyMovement()
+    public void SetStickyMovement()
     {
         //reduce the speed of the player by 90%
         walkSpeed = walkSpeed * 0.1f;
@@ -107,13 +107,13 @@ public class PlayerController : MonoBehaviour
     }
 
     //reset the speed of the player
-    public void setNormalMovement()
+    public void SetNormalMovement()
     {
         walkSpeed = 6f;
         runSpeed = 12f;
     }
 
-    public void isTrapped(bool inTrap)
+    public void IsTrapped(bool inTrap)
     {
         //trigger some animation to player when trapped
         Debug.Log($"Player is trapped (from player.cs) {inTrap}");

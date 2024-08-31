@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
     public float enemySpeed = 5f;
     public float enemyAcceleration = 8f;
     public float enemyReach = 2f;
+    public bool isTrapped = false;
 
 
 
@@ -27,7 +28,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
-        player = GameObject.Find("Player").transform;
+        //player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
         agent.speed = enemySpeed;
         agent.acceleration = enemyAcceleration;
@@ -56,9 +57,19 @@ public class EnemyAI : MonoBehaviour
     }
 
 
-    public void isTrapped()
+    public void SetIsTrapped(bool istrapped)
     {
-        Debug.Log("Enemy is trapped");
+        isTrapped = istrapped;   
+        Debug.Log("Enemy set is trapped: " + isTrapped);
+        //reduce speed by 90%
+        if (isTrapped)
+        {
+            agent.speed = enemySpeed * 0.1f;
+        }
+        else
+        {
+            agent.speed = enemySpeed;
+        }
     }
 
     public void TransitionToState(EnemyState state)
@@ -92,7 +103,7 @@ public class EnemyAI : MonoBehaviour
                 float z = Random.Range(-11, 11);
                 Vector3 position = new Vector3(x, 0f, z);
                 enemy.agent.SetDestination(position);
-                Debug.Log($"Patrolling to {position}");
+                //Debug.Log($"Patrolling to {position}");
             }
         }
     }
