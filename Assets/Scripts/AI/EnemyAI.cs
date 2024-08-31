@@ -21,14 +21,13 @@ public class EnemyAI : MonoBehaviour
 
 
     private EnemyState currentState;
-
     private PatrolState patrolState = new PatrolState();
     private ChaseState chaseState = new ChaseState();
     private HideState hideState = new HideState();
 
     private void Awake()
     {
-        //player = GameObject.Find("Player").transform;
+        player = GameObject.Find("Player").transform;
         agent = GetComponent<NavMeshAgent>();
         agent.speed = enemySpeed;
         agent.acceleration = enemyAcceleration;

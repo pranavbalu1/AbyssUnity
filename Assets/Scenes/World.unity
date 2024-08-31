@@ -1987,7 +1987,7 @@ MonoBehaviour:
     m_Bits: 128
   whatIsObstacle:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 0
   health: 1
   sightRange: 20
   playerInSightRange: 0
@@ -4671,7 +4671,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2077235424
 MonoBehaviour:
   m_ObjectHideFlags: 0
