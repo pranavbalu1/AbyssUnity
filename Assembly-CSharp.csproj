@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AI\EnemyAI.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\Item\Trap.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

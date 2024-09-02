@@ -16,11 +16,11 @@ public class EnemyAI : MonoBehaviour
     public float enemySpeed = 5f;
     public float enemyAcceleration = 8f;
     public float enemyReach = 2f;
+    public bool isTrapped = false;
 
 
 
     private EnemyState currentState;
-
     private PatrolState patrolState = new PatrolState();
     private ChaseState chaseState = new ChaseState();
     private HideState hideState = new HideState();
@@ -55,11 +55,29 @@ public class EnemyAI : MonoBehaviour
             TransitionToState(hideState);
     }
 
+
+    public void SetIsTrapped(bool istrapped)
+    {
+        isTrapped = istrapped;   
+        Debug.Log("Enemy set is trapped: " + isTrapped);
+        //reduce speed by 90%
+        if (isTrapped)
+        {
+            agent.speed = enemySpeed * 0.1f;
+        }
+        else
+        {
+            agent.speed = enemySpeed;
+        }
+    }
+
     public void TransitionToState(EnemyState state)
     {
         currentState = state;
         currentState.EnterState(this);
     }
+
+
 
     // Base state class
     public abstract class EnemyState
@@ -84,7 +102,7 @@ public class EnemyAI : MonoBehaviour
                 float z = Random.Range(-11, 11);
                 Vector3 position = new Vector3(x, 0f, z);
                 enemy.agent.SetDestination(position);
-                Debug.Log($"Patrolling to {position}");
+                //Debug.Log($"Patrolling to {position}");
             }
         }
     }
@@ -140,11 +158,11 @@ public class EnemyAI : MonoBehaviour
                     }
                 }
             }
-            
+
             // If no good hiding spots are found, default to a random position
             if (bestHidingSpot == enemy.transform.position)
             {
-                
+
                 Debug.Log("No hiding spots found.");
             }
 
@@ -197,4 +215,7 @@ public class EnemyAI : MonoBehaviour
             }
         }
     }
+
+
+
 }
