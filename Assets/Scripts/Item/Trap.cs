@@ -6,17 +6,17 @@ using UnityEngine;
 
 public class TrapTrigger : MonoBehaviour
 {
-    private bool actOnPlayer = true;
+    private bool actOnPlayer = false;
     private bool actOnEnemy = true;
 
     void OnTriggerEnter(Collider collider)
     {
         GameObject otherObj = collider.gameObject;
-        Debug.Log("Triggered enter with: " + otherObj);
+        //Debug.Log("Triggered enter with: " + otherObj);
 
         if (otherObj.CompareTag("Player") || otherObj.CompareTag("Enemy"))
         {
-            Debug.Log("Triggered enter with: " + otherObj);
+            //Debug.Log("Triggered enter with: " + otherObj);
 
             // Check if the object has the PlayerController component
             PlayerController playerController = otherObj.GetComponent<PlayerController>();
@@ -34,7 +34,7 @@ public class TrapTrigger : MonoBehaviour
             EnemyAI enemyAI = otherObj.GetComponent<EnemyAI>();
             if (otherObj.CompareTag("Enemy") && actOnEnemy && enemyAI != null)
             {
-                Debug.Log("Enemy is trapped");
+                //Debug.Log("Enemy is trapped");
                 enemyAI.SetIsTrapped(true);
             }
             else if (otherObj.CompareTag("Enemy") && enemyAI == null)
@@ -51,7 +51,7 @@ public class TrapTrigger : MonoBehaviour
         //Trigger some animation
         if (otherObj.CompareTag("Player") || otherObj.CompareTag("Enemy"))
         {
-            Debug.Log("Triggered stay with: " + otherObj);
+            //Debug.Log("Triggered stay with: " + otherObj);
             if (otherObj.CompareTag("Player") && actOnPlayer)
             {
                 // Handle player stay logic
@@ -70,7 +70,7 @@ public class TrapTrigger : MonoBehaviour
 
         if (otherObj.CompareTag("Player") || otherObj.CompareTag("Enemy"))
         {
-            Debug.Log("Triggered exit with: " + otherObj);
+            //Debug.Log("Triggered exit with: " + otherObj);
             if (otherObj.CompareTag("Player") && actOnPlayer)
             {
                 otherObj.GetComponent<PlayerController>().SetNormalMovement();

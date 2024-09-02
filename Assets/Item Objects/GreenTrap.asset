@@ -15,3 +15,4 @@ MonoBehaviour:
   item_name: Green Trap
   item_icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   trapType: 1
+  trapPrefab: {fileID: 2638641599896158242, guid: d9659a94b1615d64292b6e2b60b28e57, type: 3}

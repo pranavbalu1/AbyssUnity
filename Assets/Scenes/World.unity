@@ -2277,7 +2277,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!20 &819259720
 Camera:
   m_ObjectHideFlags: 0
@@ -3217,10 +3217,12 @@ MonoBehaviour:
   slotHolder: {fileID: 1851311934}
   slotSelector: {fileID: 688424053}
   selectedSlotIndex: 0
+  selectedItem: {fileID: 0}
   inventory:
   - {fileID: 11400000, guid: 1c6d23e3910bbbb41875d096119044d6, type: 2}
   - {fileID: 11400000, guid: 1c48ba3679373a142893e50c4ebdccce, type: 2}
   - {fileID: 11400000, guid: d4f17befede837c4186bc40bdc157738, type: 2}
+  - {fileID: 0}
 --- !u!4 &1153038658
 Transform:
   m_ObjectHideFlags: 0
@@ -5217,7 +5219,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &2065004484
 AudioListener:
   m_ObjectHideFlags: 0
@@ -5434,6 +5436,7 @@ MonoBehaviour:
   gravity: 10
   lookSpeed: 2
   lookXLimit: 45
+  inventory: {fileID: 1153038657}
 --- !u!143 &2077235425
 CharacterController:
   m_ObjectHideFlags: 0

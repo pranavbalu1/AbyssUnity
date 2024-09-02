@@ -8,9 +8,10 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private GameObject slotHolder;
     [SerializeField] private GameObject slotSelector;
     [SerializeField] private int selectedSlotIndex = 0;
-
-    public List<ItemClass> inventory = new List<ItemClass>();
-    public ItemClass selectedItem => inventory[selectedSlotIndex];
+    public ItemClass selectedItem;
+    
+public List<ItemClass> inventory = new(4);
+    
 
     private GameObject[] slots;
 
@@ -66,6 +67,7 @@ public class InventoryManager : MonoBehaviour
         slotSelector.transform.position = slots[selectedSlotIndex].transform.position;
     }
 
+
     public void RefreshUI()
     {
         for (int i = 0; i < slots.Length; i++)
@@ -93,4 +95,6 @@ public class InventoryManager : MonoBehaviour
         RefreshUI();
 
     }
+
+    public ItemClass GetSelectedItem => inventory[selectedSlotIndex];
 }

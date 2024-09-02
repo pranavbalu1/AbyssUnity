@@ -2,16 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ItemClass : ScriptableObject
+public class ItemClass : ScriptableObject
 {
     //Data shared to every Item
     [Header("Item")]
     public string item_name;
     public Sprite item_icon;
 
-    public abstract ItemClass GetItem();
-    public abstract TrapClass GetTrap();
-    public abstract ConsumableClass GetConsumable();
+    public virtual ItemClass GetItem() { return this; }
+    public virtual TrapClass GetTrap() { return null; }
+    public virtual ConsumableClass GetConsumable() { return null; }
+
+    public virtual void UseItem(PlayerController caller)
+    {
+        Debug.Log("Used " + item_name);
+    }
 
 
 }

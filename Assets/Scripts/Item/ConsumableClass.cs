@@ -16,8 +16,7 @@ public class ConsumableClass : ItemClass
         stamina
 
     }
-    public override ItemClass GetItem() => this;
-    public override TrapClass GetTrap() => null;
+
     public override ConsumableClass GetConsumable() => this;
 
 }
