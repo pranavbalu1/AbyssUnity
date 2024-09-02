@@ -6,9 +6,12 @@ using UnityEngine.UI;
 public class InventoryManager : MonoBehaviour
 {
     [SerializeField] private GameObject slotHolder;
-    
+    [SerializeField] private GameObject slotSelector;
+    [SerializeField] private int selectedSlotIndex = 0;
+
     public List<ItemClass> inventory = new List<ItemClass>();
-    
+    public ItemClass selectedItem => inventory[selectedSlotIndex];
+
     private GameObject[] slots;
 
     public void Start()
@@ -20,6 +23,47 @@ public class InventoryManager : MonoBehaviour
         }
 
         RefreshUI();
+    }
+
+    public void Update()
+    {
+        //scroll wheel to select slot
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            selectedSlotIndex--;
+            if (selectedSlotIndex < 0)
+            {
+                selectedSlotIndex = slots.Length - 1;
+            }
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            selectedSlotIndex++;
+            if (selectedSlotIndex >= slots.Length)
+            {
+                selectedSlotIndex = 0;
+            }
+        }
+
+        //1 through 4 to select slot
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            selectedSlotIndex = 0;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            selectedSlotIndex = 1;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            selectedSlotIndex = 2;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            selectedSlotIndex = 3;
+        }
+
+        slotSelector.transform.position = slots[selectedSlotIndex].transform.position;
     }
 
     public void RefreshUI()
