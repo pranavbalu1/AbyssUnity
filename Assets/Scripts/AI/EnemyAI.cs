@@ -59,7 +59,7 @@ public class EnemyAI : MonoBehaviour
     public void SetIsTrapped(bool istrapped)
     {
         isTrapped = istrapped;   
-        Debug.Log("Enemy set is trapped: " + isTrapped);
+        //Debug.Log("Enemy set is trapped: " + isTrapped);
         //reduce speed by 90%
         if (isTrapped)
         {
@@ -112,11 +112,11 @@ public class EnemyAI : MonoBehaviour
     {
         public override void EnterState(EnemyAI enemy)
         {
-            Debug.Log("Entering Hide State");
+            //Debug.Log("Entering Hide State");
             Vector3 hideSpot = FindHidingSpot(enemy);
             if (hideSpot == enemy.transform.position)
             {
-                Debug.Log("No hiding spots found. Moving to Chase State.");
+                //Debug.Log("No hiding spots found. Moving to Chase State.");
                 enemy.TransitionToState(enemy.chaseState);
             }
             enemy.agent.SetDestination(hideSpot);
@@ -127,10 +127,10 @@ public class EnemyAI : MonoBehaviour
 
         public override void UpdateState(EnemyAI enemy)
         {
-            Debug.Log("Hiding Update");
+            //Debug.Log("Hiding Update");
             if (enemy.agent.remainingDistance < 0.5f)
             {
-                Debug.Log("Enemy is hiding.");
+                //Debug.Log("Enemy is hiding.");
                 enemy.agent.isStopped = true;
             }
         }
@@ -163,7 +163,7 @@ public class EnemyAI : MonoBehaviour
             if (bestHidingSpot == enemy.transform.position)
             {
 
-                Debug.Log("No hiding spots found.");
+                //Debug.Log("No hiding spots found.");
             }
 
             return bestHidingSpot;
@@ -193,7 +193,7 @@ public class EnemyAI : MonoBehaviour
     {
         public override void EnterState(EnemyAI enemy)
         {
-            Debug.Log("Entering Chase State");
+            //Debug.Log("Entering Chase State");
             enemy.agent.isStopped = false;  // Ensure the agent starts moving again if stopped
         }
 
@@ -205,13 +205,13 @@ public class EnemyAI : MonoBehaviour
             {
                 enemy.agent.isStopped = false;
                 enemy.agent.SetDestination(enemy.player.position);
-                Debug.Log($"Chasing Player {enemy.player.position}");
+                //Debug.Log($"Chasing Player {enemy.player.position}");
             }
             else
             {
                 enemy.agent.isStopped = true;
                 enemy.agent.SetDestination(enemy.transform.position);  // Stop the agent at the current position
-                Debug.Log($"Chasing Player {enemy.player.position}. Slowing down.");
+                //Debug.Log($"Chasing Player {enemy.player.position}. Slowing down.");
             }
         }
     }

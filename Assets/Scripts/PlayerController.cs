@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
 
     private bool canMove = true;
 
+    public InventoryManager inventory;
+
     private void Start()
     {
         // Get the CharacterController component
@@ -37,6 +39,13 @@ public class PlayerController : MonoBehaviour
 
         // Handle player rotation
         HandleRotation();
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            // Use the selected item in the inventory
+            if (inventory.GetSelectedItem != null)
+                inventory.GetSelectedItem.UseItem(this);
+        }
     }
 
     private void HandleMovement()
