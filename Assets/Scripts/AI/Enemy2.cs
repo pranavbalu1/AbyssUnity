@@ -10,8 +10,10 @@ public class Enemy2 : MonoBehaviour
     public LayerMask whatIsGround, whatIsPlayer, whatIsObstacle;
 
     // Enemy Attributes
-    public float activateRange = 10f;
+    public float activateRange = 5f;
+    public float deactivateRange = 20f;
     public bool playerInActivateRange = false;
+    
     public float enemySpeed = 5f;
     public float enemyAcceleration = 8f;
     public float enemyReach = 2f;
@@ -60,7 +62,9 @@ public class Enemy2 : MonoBehaviour
 
             // Check if the player is within the activation range
             playerInActivateRange = Physics.CheckSphere(transform.position, activateRange, whatIsPlayer);
+            Debug.Log(currentState);
         }
+        
     }
 
     public void SetIsTrapped(bool istrapped)
@@ -93,6 +97,7 @@ public class Enemy2 : MonoBehaviour
         public override void EnterState(Enemy2 enemy)
         {
             Debug.Log("Entering Sleep State");
+            enemy.agent.isStopped = true;
         }
 
         public override void UpdateState(Enemy2 enemy)
@@ -102,7 +107,7 @@ public class Enemy2 : MonoBehaviour
 
             if (enemy.playerInActivateRange)
             {
-                enemy.TransitionToState(enemy.freezeState);
+                enemy.TransitionToState(enemy.chaseState);
             }
         }
     }
@@ -119,22 +124,28 @@ public class Enemy2 : MonoBehaviour
             if (enemy.player == null) return; // Ensure player is valid
 
             float distanceToPlayer = Vector3.Distance(enemy.transform.position, enemy.player.position);
+            Debug.Log(distanceToPlayer);
 
             if (distanceToPlayer > enemy.enemyReach)
             {
+                enemy.agent.isStopped = false;
                 enemy.agent.SetDestination(enemy.player.position);
             }
             else
             {
                 enemy.agent.isStopped = true;
+                enemy.agent.SetDestination(enemy.transform.position);  // Stop the agent at the current position
             }
 
-            // Check if the player can see the enemy
-            if (IsEnemyInPlayerVision(enemy))
+            if (!IsEnemyInPlayerVision(enemy))  // Check if the player can see the enemy
             {
                 enemy.TransitionToState(enemy.freezeState);
             }
-        }
+            else if (distanceToPlayer > enemy.deactivateRange)  // Check if the player is outside the deactivation range
+            {
+                enemy.TransitionToState(enemy.sleepState);
+            }
+        } 
 
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
@@ -165,8 +176,8 @@ public class Enemy2 : MonoBehaviour
 
         public override void UpdateState(Enemy2 enemy)
         {
-            // Check if the player can see the enemy
-            if (IsEnemyInPlayerVision(enemy))
+            // Check if the player can not see the enemy
+            if (!IsEnemyInPlayerVision(enemy))
             {
                 enemy.agent.isStopped = true;  // Stay frozen if the player sees the enemy
             }
