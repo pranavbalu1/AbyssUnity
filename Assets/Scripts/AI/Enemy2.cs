@@ -1,52 +1,18 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-public class Enemy2 : MonoBehaviour
+public class Enemy2 : EnemyBase
 {
-    public NavMeshAgent agent;
-    public Transform player;
-    public LayerMask whatIsGround, whatIsPlayer, whatIsObstacle;
-
-    // Enemy Attributes
     public float activateRange = 5f;
     public float deactivateRange = 20f;
     public bool playerInActivateRange = false;
     public float sightRange = 10f;
-    
-    public float enemySpeed = 5f;
-    public float enemyAcceleration = 8f;
-    public float enemyReach = 2f;
-    public bool isTrapped = false;
+    public float fieldOfViewAngle = 90f;
 
-    // Player vision attributes
-    public float fieldOfViewAngle = 90f;  // Player's field of view in degrees
-
-    private EnemyState currentState;
     private SleepState sleepState = new SleepState();
     private ChaseState chaseState = new ChaseState();
     private FreezeState freezeState = new FreezeState();
 
-    private void Awake()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        agent.speed = enemySpeed;
-        agent.acceleration = enemyAcceleration;
-
-        // Find the player
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-
-        // Check if player is null
-        if (player == null)
-        {
-            Debug.LogError("Player not found!");
-        }
-    }
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         if (player != null)
         {
@@ -55,94 +21,64 @@ public class Enemy2 : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if (player != null)
         {
-            currentState.UpdateState(this);
-
-            // Check if the player is within the activation range
             playerInActivateRange = Physics.CheckSphere(transform.position, activateRange, whatIsPlayer);
-            Debug.Log(currentState);
-        }
-        
-    }
-
-    public void SetIsTrapped(bool istrapped)
-    {
-        isTrapped = istrapped;
-        if (isTrapped)
-        {
-            agent.speed = enemySpeed * 0.1f;
-        }
-        else
-        {
-            agent.speed = enemySpeed;
         }
     }
 
-    public void TransitionToState(EnemyState state)
+    private class SleepState : EnemyBase.EnemyState
     {
-        currentState = state;
-        currentState.EnterState(this);
-    }
-
-    public abstract class EnemyState
-    {
-        public abstract void EnterState(Enemy2 enemy);
-        public abstract void UpdateState(Enemy2 enemy);
-    }
-
-    private class SleepState : EnemyState
-    {
-        public override void EnterState(Enemy2 enemy)
+        public override void EnterState(EnemyBase enemy)
         {
+            Enemy2 enemy2 = (Enemy2)enemy;
             Debug.Log("Entering Sleep State");
-            Vector3 hideSpot = FindBestCover(enemy);
-            if (hideSpot != enemy.transform.position)
+            Vector3 hideSpot = FindBestCover(enemy2);
+            if (hideSpot != enemy2.transform.position)
             {
-                enemy.agent.SetDestination(hideSpot);
-                enemy.agent.isStopped = false;
+                enemy2.agent.SetDestination(hideSpot);
+                enemy2.agent.isStopped = false;
             }
             else
             {
-                enemy.agent.isStopped = true;
+                enemy2.agent.isStopped = true;
                 Debug.Log("No good hiding spot found.");
             }
         }
 
-        public override void UpdateState(Enemy2 enemy)
+        public override void UpdateState(EnemyBase enemy)
         {
-            if (enemy.agent.remainingDistance < 0.5f)
+            Enemy2 enemy2 = (Enemy2)enemy;
+
+            if (enemy2.agent.remainingDistance < 0.5f)
             {
-                enemy.agent.isStopped = true;
+                enemy2.agent.isStopped = true;
             }
 
-            // Check if the player is in activation range
-            enemy.playerInActivateRange = Physics.CheckSphere(enemy.transform.position, enemy.activateRange, enemy.whatIsPlayer);
+            enemy2.playerInActivateRange = Physics.CheckSphere(enemy2.transform.position, enemy2.activateRange, enemy2.whatIsPlayer);
 
-            if (enemy.playerInActivateRange)
+            if (enemy2.playerInActivateRange)
             {
-                enemy.TransitionToState(enemy.chaseState);
+                enemy2.TransitionToState(enemy2.chaseState);
             }
-
         }
 
         private Vector3 FindBestCover(Enemy2 enemy)
         {
             Collider[] obstacles = Physics.OverlapSphere(enemy.transform.position, enemy.sightRange, enemy.whatIsObstacle);
             Vector3 bestHidingSpot = enemy.transform.position;
-            float bestScore = Mathf.Infinity; // Lower score is better
+            float bestScore = Mathf.Infinity;
 
             foreach (var obstacle in obstacles)
             {
                 Vector3 potentialHidingSpot = GetBehindObstacle(obstacle, enemy);
                 float exposure = CalculateExposure(potentialHidingSpot, enemy);
                 float distanceToObstacle = Vector3.Distance(potentialHidingSpot, obstacle.transform.position);
-
-                // Calculate a score based on exposure and distance to the obstacle
-                float score = exposure + distanceToObstacle;  // You can tweak this formula
+                float score = exposure + distanceToObstacle;
 
                 if (score < bestScore)
                 {
@@ -163,7 +99,7 @@ public class Enemy2 : MonoBehaviour
         private float CalculateExposure(Vector3 hideSpot, Enemy2 enemy)
         {
             float exposure = 0f;
-            int numberOfRaycasts = 12;  // Higher number for more accuracy
+            int numberOfRaycasts = 12;
             float angleStep = 360f / numberOfRaycasts;
 
             for (int i = 0; i < numberOfRaycasts; i++)
@@ -173,105 +109,91 @@ public class Enemy2 : MonoBehaviour
 
                 if (!Physics.Raycast(hideSpot, direction, enemy.sightRange, enemy.whatIsObstacle))
                 {
-                    exposure += 1f;  // Increment exposure if no obstacles are in this direction
+                    exposure += 1f;
                 }
             }
 
-            return exposure;  // Lower exposure values indicate better cover
+            return exposure;
         }
-
     }
 
-    private class ChaseState : EnemyState
+    private class ChaseState : EnemyBase.EnemyState
     {
-        public override void EnterState(Enemy2 enemy)
+        public override void EnterState(EnemyBase enemy)
         {
-            enemy.agent.isStopped = false;  // Ensure the agent starts moving again if stopped
+            Enemy2 enemy2 = (Enemy2)enemy;
+            enemy2.agent.isStopped = false;
         }
 
-        public override void UpdateState(Enemy2 enemy)
+        public override void UpdateState(EnemyBase enemy)
         {
-            if (enemy.player == null) return; // Ensure player is valid
+            Enemy2 enemy2 = (Enemy2)enemy;
 
-            float distanceToPlayer = Vector3.Distance(enemy.transform.position, enemy.player.position);
+            if (enemy2.player == null) return;
+
+            float distanceToPlayer = Vector3.Distance(enemy2.transform.position, enemy2.player.position);
             Debug.Log(distanceToPlayer);
 
-            if (distanceToPlayer > enemy.enemyReach)
+            if (distanceToPlayer > enemy2.enemyReach)
             {
-                enemy.agent.isStopped = false;
-                enemy.agent.SetDestination(enemy.player.position);
+                enemy2.agent.isStopped = false;
+                enemy2.agent.SetDestination(enemy2.player.position);
             }
             else
             {
-                enemy.agent.isStopped = true;
-                enemy.agent.SetDestination(enemy.transform.position);  // Stop the agent at the current position
+                enemy2.agent.isStopped = true;
+                enemy2.agent.SetDestination(enemy2.transform.position);
             }
 
-            if (!IsEnemyInPlayerVision(enemy))  // Check if the player can see the enemy
+            if (!IsEnemyInPlayerVision(enemy2))
             {
-                enemy.TransitionToState(enemy.freezeState);
+                enemy2.TransitionToState(enemy2.freezeState);
             }
-            else if (distanceToPlayer > enemy.deactivateRange)  // Check if the player is outside the deactivation range
+            else if (distanceToPlayer > enemy2.deactivateRange)
             {
-                enemy.TransitionToState(enemy.sleepState);
+                enemy2.TransitionToState(enemy2.sleepState);
             }
-        } 
+        }
 
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
-            // Get the vector from player to enemy
             Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
-
-            // Get the player's forward direction
             Vector3 playerForward = enemy.player.forward;
-
-            // Calculate the dot product between player's forward direction and direction to enemy
             float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
-
-            // Calculate the angle between the two vectors
             float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-
-            // Check if the angle is within the player's field of view
             return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
 
-    private class FreezeState : EnemyState
+    private class FreezeState : EnemyBase.EnemyState
     {
-        public override void EnterState(Enemy2 enemy)
+        public override void EnterState(EnemyBase enemy)
         {
+            Enemy2 enemy2 = (Enemy2)enemy;
             Debug.Log("Entering Freeze State");
-            enemy.agent.isStopped = true;
+            enemy2.agent.isStopped = true;
         }
 
-        public override void UpdateState(Enemy2 enemy)
+        public override void UpdateState(EnemyBase enemy)
         {
-            // Check if the player can not see the enemy
-            if (!IsEnemyInPlayerVision(enemy))
+            Enemy2 enemy2 = (Enemy2)enemy;
+
+            if (!IsEnemyInPlayerVision(enemy2))
             {
-                enemy.agent.isStopped = true;  // Stay frozen if the player sees the enemy
+                enemy2.agent.isStopped = true;
             }
             else
             {
-                enemy.TransitionToState(enemy.chaseState);  // Resume chasing if the player cannot see the enemy
+                enemy2.TransitionToState(enemy2.chaseState);
             }
         }
 
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
-            // Get the vector from player to enemy
             Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
-
-            // Get the player's forward direction
             Vector3 playerForward = enemy.player.forward;
-
-            // Calculate the dot product between player's forward direction and direction to enemy
             float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
-
-            // Calculate the angle between the two vectors
             float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-
-            // Check if the angle is within the player's field of view
             return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
