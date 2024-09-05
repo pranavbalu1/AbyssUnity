@@ -36,7 +36,7 @@ public class Enemy2 : MonoBehaviour
         agent.acceleration = enemyAcceleration;
 
         // Find the player
-        player = GameObject.Find("Player")?.transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
         // Check if player is null
         if (player == null)
@@ -118,23 +118,36 @@ public class Enemy2 : MonoBehaviour
             {
                 enemy.agent.isStopped = true;
             }
+
+            // Check if the player is in activation range
+            enemy.playerInActivateRange = Physics.CheckSphere(enemy.transform.position, enemy.activateRange, enemy.whatIsPlayer);
+
+            if (enemy.playerInActivateRange)
+            {
+                enemy.TransitionToState(enemy.chaseState);
+            }
+
         }
 
         private Vector3 FindBestCover(Enemy2 enemy)
         {
             Collider[] obstacles = Physics.OverlapSphere(enemy.transform.position, enemy.sightRange, enemy.whatIsObstacle);
             Vector3 bestHidingSpot = enemy.transform.position;
-            float bestExposure = Mathf.Infinity;
+            float bestScore = Mathf.Infinity; // Lower score is better
 
             foreach (var obstacle in obstacles)
             {
                 Vector3 potentialHidingSpot = GetBehindObstacle(obstacle, enemy);
                 float exposure = CalculateExposure(potentialHidingSpot, enemy);
+                float distanceToObstacle = Vector3.Distance(potentialHidingSpot, obstacle.transform.position);
 
-                if (exposure < bestExposure)
+                // Calculate a score based on exposure and distance to the obstacle
+                float score = exposure + distanceToObstacle;  // You can tweak this formula
+
+                if (score < bestScore)
                 {
                     bestHidingSpot = potentialHidingSpot;
-                    bestExposure = exposure;
+                    bestScore = score;
                 }
             }
 
@@ -166,6 +179,7 @@ public class Enemy2 : MonoBehaviour
 
             return exposure;  // Lower exposure values indicate better cover
         }
+
     }
 
     private class ChaseState : EnemyState
