@@ -360,6 +360,7 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.43f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.43f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/AI/EnemyAI.cs"
+"Assets/Scripts/AI/NewBehaviourScript.cs"
 "Assets/Scripts/Item/ConsumableClass.cs"
 "Assets/Scripts/Item/InventoryManager.cs"
 "Assets/Scripts/Item/ItemClass.cs"
