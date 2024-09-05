@@ -32,6 +32,7 @@ public class TrapTrigger : MonoBehaviour
 
             // Check if the object has the EnemyAI component
             EnemyAI enemyAI = otherObj.GetComponent<EnemyAI>();
+            //TODO: need to add functionality with different classes of enemies
             if (otherObj.CompareTag("Enemy") && actOnEnemy && enemyAI != null)
             {
                 //Debug.Log("Enemy is trapped");
