@@ -8,7 +8,6 @@ public class EnemyAI : MonoBehaviour
     public NavMeshAgent agent;
     public Transform player;
     public LayerMask whatIsGround, whatIsPlayer, whatIsObstacle;
-    public float health = 10;  // Set a default health value
 
     //Enemy Attributes
     public float sightRange = 20f;
