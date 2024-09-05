@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class Enemy2 : MonoBehaviour
     public float activateRange = 5f;
     public float deactivateRange = 20f;
     public bool playerInActivateRange = false;
+    public float sightRange = 10f;
     
     public float enemySpeed = 5f;
     public float enemyAcceleration = 8f;
@@ -92,23 +94,77 @@ public class Enemy2 : MonoBehaviour
         public abstract void UpdateState(Enemy2 enemy);
     }
 
-    public class SleepState : EnemyState
+    private class SleepState : EnemyState
     {
         public override void EnterState(Enemy2 enemy)
         {
             Debug.Log("Entering Sleep State");
-            enemy.agent.isStopped = true;
+            Vector3 hideSpot = FindBestCover(enemy);
+            if (hideSpot != enemy.transform.position)
+            {
+                enemy.agent.SetDestination(hideSpot);
+                enemy.agent.isStopped = false;
+            }
+            else
+            {
+                enemy.agent.isStopped = true;
+                Debug.Log("No good hiding spot found.");
+            }
         }
 
         public override void UpdateState(Enemy2 enemy)
         {
-            // Check if the player is in activation range
-            enemy.playerInActivateRange = Physics.CheckSphere(enemy.transform.position, enemy.activateRange, enemy.whatIsPlayer);
-
-            if (enemy.playerInActivateRange)
+            if (enemy.agent.remainingDistance < 0.5f)
             {
-                enemy.TransitionToState(enemy.chaseState);
+                enemy.agent.isStopped = true;
             }
+        }
+
+        private Vector3 FindBestCover(Enemy2 enemy)
+        {
+            Collider[] obstacles = Physics.OverlapSphere(enemy.transform.position, enemy.sightRange, enemy.whatIsObstacle);
+            Vector3 bestHidingSpot = enemy.transform.position;
+            float bestExposure = Mathf.Infinity;
+
+            foreach (var obstacle in obstacles)
+            {
+                Vector3 potentialHidingSpot = GetBehindObstacle(obstacle, enemy);
+                float exposure = CalculateExposure(potentialHidingSpot, enemy);
+
+                if (exposure < bestExposure)
+                {
+                    bestHidingSpot = potentialHidingSpot;
+                    bestExposure = exposure;
+                }
+            }
+
+            return bestHidingSpot;
+        }
+
+        private Vector3 GetBehindObstacle(Collider obstacle, Enemy2 enemy)
+        {
+            Vector3 directionAwayFromCenter = (enemy.transform.position - obstacle.transform.position).normalized;
+            return obstacle.transform.position + directionAwayFromCenter * 2f;
+        }
+
+        private float CalculateExposure(Vector3 hideSpot, Enemy2 enemy)
+        {
+            float exposure = 0f;
+            int numberOfRaycasts = 12;  // Higher number for more accuracy
+            float angleStep = 360f / numberOfRaycasts;
+
+            for (int i = 0; i < numberOfRaycasts; i++)
+            {
+                float angle = i * angleStep;
+                Vector3 direction = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)).normalized;
+
+                if (!Physics.Raycast(hideSpot, direction, enemy.sightRange, enemy.whatIsObstacle))
+                {
+                    exposure += 1f;  // Increment exposure if no obstacles are in this direction
+                }
+            }
+
+            return exposure;  // Lower exposure values indicate better cover
         }
     }
 
