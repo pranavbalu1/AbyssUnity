@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\AI\Enemy2.cs" />
     <Compile Include="Assets\Scripts\Item\ItemClass.cs" />
     <Compile Include="Assets\Scripts\Item\ConsumableClass.cs" />
+    <Compile Include="Assets\Scripts\AI\EnemyBase.cs" />
     <Compile Include="Assets\Scripts\AI\EnemyAI.cs" />
     <Compile Include="Assets\Scripts\Item\TrapClass.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
