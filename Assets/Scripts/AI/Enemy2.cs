@@ -7,7 +7,6 @@ public class Enemy2 : MonoBehaviour
 {
     public NavMeshAgent agent;
     public Transform player;
-    public Camera playerCamera;  // Single player's camera
     public LayerMask whatIsGround, whatIsPlayer, whatIsObstacle;
 
     // Enemy Attributes
@@ -17,6 +16,9 @@ public class Enemy2 : MonoBehaviour
     public float enemyAcceleration = 8f;
     public float enemyReach = 2f;
     public bool isTrapped = false;
+
+    // Player vision attributes
+    public float fieldOfViewAngle = 90f;  // Player's field of view in degrees
 
     private EnemyState currentState;
     private SleepState sleepState = new SleepState();
@@ -29,25 +31,36 @@ public class Enemy2 : MonoBehaviour
         agent.speed = enemySpeed;
         agent.acceleration = enemyAcceleration;
 
-        // Find the player and their camera
-        player = GameObject.Find("Player").transform;
-        playerCamera = Camera.main;  // Assuming the main camera is attached to the player
+        // Find the player
+        player = GameObject.Find("Player")?.transform;
+
+        // Check if player is null
+        if (player == null)
+        {
+            Debug.LogError("Player not found!");
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        currentState = sleepState;
-        currentState.EnterState(this);
+        if (player != null)
+        {
+            currentState = sleepState;
+            currentState.EnterState(this);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        currentState.UpdateState(this);
+        if (player != null)
+        {
+            currentState.UpdateState(this);
 
-        // Check if the player is within the activation range
-        playerInActivateRange = Physics.CheckSphere(transform.position, activateRange, whatIsPlayer);
+            // Check if the player is within the activation range
+            playerInActivateRange = Physics.CheckSphere(transform.position, activateRange, whatIsPlayer);
+        }
     }
 
     public void SetIsTrapped(bool istrapped)
@@ -94,7 +107,6 @@ public class Enemy2 : MonoBehaviour
         }
     }
 
-    // Chase state class
     private class ChaseState : EnemyState
     {
         public override void EnterState(Enemy2 enemy)
@@ -104,6 +116,8 @@ public class Enemy2 : MonoBehaviour
 
         public override void UpdateState(Enemy2 enemy)
         {
+            if (enemy.player == null) return; // Ensure player is valid
+
             float distanceToPlayer = Vector3.Distance(enemy.transform.position, enemy.player.position);
 
             if (distanceToPlayer > enemy.enemyReach)
@@ -116,17 +130,28 @@ public class Enemy2 : MonoBehaviour
             }
 
             // Check if the player can see the enemy
-            if (IsEnemyOnScreen(enemy))
+            if (IsEnemyInPlayerVision(enemy))
             {
                 enemy.TransitionToState(enemy.freezeState);
             }
         }
 
-        // Check if the enemy is on the player's screen
-        private bool IsEnemyOnScreen(Enemy2 enemy)
+        private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
-            Vector3 screenPoint = enemy.playerCamera.WorldToViewportPoint(enemy.transform.position);
-            return screenPoint.x >= 0 && screenPoint.x <= 1 && screenPoint.y >= 0 && screenPoint.y <= 1 && screenPoint.z > 0;
+            // Get the vector from player to enemy
+            Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
+
+            // Get the player's forward direction
+            Vector3 playerForward = enemy.player.forward;
+
+            // Calculate the dot product between player's forward direction and direction to enemy
+            float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
+
+            // Calculate the angle between the two vectors
+            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+
+            // Check if the angle is within the player's field of view
+            return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
 
@@ -141,7 +166,7 @@ public class Enemy2 : MonoBehaviour
         public override void UpdateState(Enemy2 enemy)
         {
             // Check if the player can see the enemy
-            if (IsEnemyOnScreen(enemy))
+            if (IsEnemyInPlayerVision(enemy))
             {
                 enemy.agent.isStopped = true;  // Stay frozen if the player sees the enemy
             }
@@ -151,11 +176,22 @@ public class Enemy2 : MonoBehaviour
             }
         }
 
-        // Check if the enemy is on the player's screen
-        private bool IsEnemyOnScreen(Enemy2 enemy)
+        private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
-            Vector3 screenPoint = enemy.playerCamera.WorldToViewportPoint(enemy.transform.position);
-            return screenPoint.x >= 0 && screenPoint.x <= 1 && screenPoint.y >= 0 && screenPoint.y <= 1 && screenPoint.z > 0;
+            // Get the vector from player to enemy
+            Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
+
+            // Get the player's forward direction
+            Vector3 playerForward = enemy.player.forward;
+
+            // Calculate the dot product between player's forward direction and direction to enemy
+            float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
+
+            // Calculate the angle between the two vectors
+            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+
+            // Check if the angle is within the player's field of view
+            return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
 }

@@ -1200,7 +1200,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &237273848
 Transform:
   m_ObjectHideFlags: 0
@@ -4194,7 +4194,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agent: {fileID: 1532481459}
   player: {fileID: 2077235426}
-  playerCamera: {fileID: 819259720}
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
@@ -4210,6 +4209,7 @@ MonoBehaviour:
   enemyAcceleration: 8
   enemyReach: 2
   isTrapped: 0
+  fieldOfViewAngle: 90
 --- !u!54 &1532481457
 Rigidbody:
   m_ObjectHideFlags: 0
