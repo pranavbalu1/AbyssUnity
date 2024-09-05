@@ -158,9 +158,7 @@ public class Enemy2 : EnemyBase
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
             Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
-            Vector3 playerForward = enemy.player.forward;
-            float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+            float angleToEnemy = Vector3.Angle(enemy.player.forward, directionToEnemy);
             return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
@@ -191,9 +189,7 @@ public class Enemy2 : EnemyBase
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
             Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
-            Vector3 playerForward = enemy.player.forward;
-            float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+            float angleToEnemy = Vector3.Angle(enemy.player.forward, directionToEnemy);
             return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
