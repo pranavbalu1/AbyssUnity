@@ -3341,7 +3341,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &925983472
 Transform:
   m_ObjectHideFlags: 0
@@ -3381,12 +3381,12 @@ MonoBehaviour:
   whatIsObstacle:
     serializedVersion: 2
     m_Bits: 1024
-  sightRange: 20
-  playerInSightRange: 0
   enemySpeed: 5
   enemyAcceleration: 8
   enemyReach: 2
   isTrapped: 0
+  sightRange: 20
+  playerInSightRange: 0
 --- !u!195 &925983475
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -7799,6 +7799,10 @@ PrefabInstance:
     - target: {fileID: 6041303382840260912, guid: 2b2afc49af668874d9aadf43785ec748, type: 3}
       propertyPath: m_Name
       value: Enemy_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6041303382840260912, guid: 2b2afc49af668874d9aadf43785ec748, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
