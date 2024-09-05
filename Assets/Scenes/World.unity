@@ -1194,13 +1194,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 237273848}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Obstacles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &237273848
 Transform:
   m_ObjectHideFlags: 0
@@ -2277,7 +2277,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!20 &819259720
 Camera:
   m_ObjectHideFlags: 0
@@ -2410,7 +2410,7 @@ MonoBehaviour:
     m_Bits: 128
   whatIsObstacle:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   health: 1
   sightRange: 20
   playerInSightRange: 0
@@ -5219,7 +5219,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &2065004484
 AudioListener:
   m_ObjectHideFlags: 0
