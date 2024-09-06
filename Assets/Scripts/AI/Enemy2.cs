@@ -7,6 +7,7 @@ public class Enemy2 : EnemyBase
     public bool playerInActivateRange = false;
     public float sightRange = 10f;
     public float fieldOfViewAngle = 90f;
+    
 
     private SleepState sleepState = new SleepState();
     private ChaseState chaseState = new ChaseState();
@@ -52,8 +53,7 @@ public class Enemy2 : EnemyBase
 
         public override void UpdateState(EnemyBase enemy)
         {
-            Enemy2 enemy2 = (Enemy2)enemy;
-
+            Enemy2 enemy2 = (Enemy2) enemy;
             if (enemy2.agent.remainingDistance < 0.5f)
             {
                 enemy2.agent.isStopped = true;
@@ -132,7 +132,6 @@ public class Enemy2 : EnemyBase
             if (enemy2.player == null) return;
 
             float distanceToPlayer = Vector3.Distance(enemy2.transform.position, enemy2.player.position);
-            Debug.Log(distanceToPlayer);
 
             if (distanceToPlayer > enemy2.enemyReach)
             {
@@ -158,9 +157,7 @@ public class Enemy2 : EnemyBase
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
             Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
-            Vector3 playerForward = enemy.player.forward;
-            float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+            float angleToEnemy = Vector3.Angle(enemy.player.forward, directionToEnemy);
             return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
@@ -178,11 +175,7 @@ public class Enemy2 : EnemyBase
         {
             Enemy2 enemy2 = (Enemy2)enemy;
 
-            if (!IsEnemyInPlayerVision(enemy2))
-            {
-                enemy2.agent.isStopped = true;
-            }
-            else
+            if (IsEnemyInPlayerVision(enemy2) && !enemy2.IsPlayerObstructed())
             {
                 enemy2.TransitionToState(enemy2.chaseState);
             }
@@ -191,9 +184,7 @@ public class Enemy2 : EnemyBase
         private bool IsEnemyInPlayerVision(Enemy2 enemy)
         {
             Vector3 directionToEnemy = (enemy.transform.position - enemy.player.position).normalized;
-            Vector3 playerForward = enemy.player.forward;
-            float dotProduct = Vector3.Dot(playerForward, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+            float angleToEnemy = Vector3.Angle(enemy.player.forward, directionToEnemy);
             return angleToEnemy < enemy.fieldOfViewAngle / 2f;
         }
     }
