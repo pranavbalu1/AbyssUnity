@@ -46,10 +46,18 @@ public abstract class EnemyBase : MonoBehaviour
         currentState.EnterState(this);
     }
 
+    public bool IsPlayerObstructed()
+    {
+        return false;
+    }
+
     // Base state class for shared state behavior
     public abstract class EnemyState
     {
         public abstract void EnterState(EnemyBase enemy);
         public abstract void UpdateState(EnemyBase enemy);
     }
+
+  
+
 }
