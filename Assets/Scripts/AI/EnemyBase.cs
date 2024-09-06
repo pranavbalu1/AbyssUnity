@@ -54,7 +54,7 @@ public abstract class EnemyBase : MonoBehaviour
         Debug.DrawRay(transform.position, directionToPlayer.normalized * directionToPlayer.magnitude, Color.red);
 
         // Use a SphereCast for better consistency (adjust the radius as needed).
-        float sphereRadius = 0.5f; // Adjust the radius for better collision detection
+        float sphereRadius = 0.2f; // Adjust the radius for better collision detection
         if (Physics.SphereCast(transform.position, sphereRadius, directionToPlayer.normalized, out RaycastHit hit, directionToPlayer.magnitude))
         {
             if (hit.transform == player)
