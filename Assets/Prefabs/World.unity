@@ -1150,7 +1150,7 @@ GameObject:
   - component: {fileID: 206441642}
   - component: {fileID: 206441645}
   - component: {fileID: 206441644}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Enemy Capsule
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -1449,7 +1449,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &237273848
 Transform:
   m_ObjectHideFlags: 0
@@ -3335,7 +3335,7 @@ GameObject:
   - component: {fileID: 925983475}
   - component: {fileID: 925983476}
   - component: {fileID: 925983477}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -7490,7 +7490,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2077235424
 MonoBehaviour:
   m_ObjectHideFlags: 0
