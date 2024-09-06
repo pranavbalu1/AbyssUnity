@@ -48,8 +48,25 @@ public abstract class EnemyBase : MonoBehaviour
 
     public bool IsPlayerObstructed()
     {
+
+        Vector3 directionToPlayer = player.position - transform.position;
+
+        Debug.DrawRay(transform.position, directionToPlayer.normalized * directionToPlayer.magnitude, Color.red);
+
+        // Use a SphereCast for better consistency (adjust the radius as needed).
+        float sphereRadius = 0.5f; // Adjust the radius for better collision detection
+        if (Physics.SphereCast(transform.position, sphereRadius, directionToPlayer.normalized, out RaycastHit hit, directionToPlayer.magnitude))
+        {
+            if (hit.transform == player)
+            {
+                return true; // No obstruction if we hit the player directly.
+            }
+        }
+
+        Debug.Log("No hit detected, player not obstructed.");
         return false;
     }
+
 
     // Base state class for shared state behavior
     public abstract class EnemyState

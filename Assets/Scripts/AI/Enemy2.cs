@@ -52,8 +52,8 @@ public class Enemy2 : EnemyBase
 
         public override void UpdateState(EnemyBase enemy)
         {
-            Enemy2 enemy2 = (Enemy2)enemy;
-
+            Enemy2 enemy2 = (Enemy2) enemy;
+            Debug.Log("Is player obstructed: " + enemy2.IsPlayerObstructed());
             if (enemy2.agent.remainingDistance < 0.5f)
             {
                 enemy2.agent.isStopped = true;
