@@ -59,12 +59,12 @@ public abstract class EnemyBase : MonoBehaviour
         {
             if (hit.transform == player)
             {
-                return true; // No obstruction if we hit the player directly.
+                return false; // No obstruction if we hit the player directly.
             }
         }
 
         Debug.Log("No hit detected, player not obstructed.");
-        return false;
+        return true;
     }
 
 
