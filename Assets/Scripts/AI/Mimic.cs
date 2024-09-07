@@ -4,10 +4,11 @@ public class MimicEnemy : EnemyBase
 {
     public GameObject disguiseObject; // Prefab for the disguise object
     public float spawnHeight = 2f; // How far above the enemy the disguise spawns
+    public float detectionRange = 5f; // Range within which the player will trigger the reveal
 
     private GameObject currentDisguise;
-
     private SleepState sleepState = new SleepState();
+    private RevealState revealState = new RevealState();
 
     private void Start()
     {
@@ -20,7 +21,6 @@ public class MimicEnemy : EnemyBase
     protected override void Update()
     {
         base.Update();
-        Debug.Log(currentState);
     }
 
     // Method to instantiate the disguise object with a Rigidbody and spawn above the enemy
@@ -52,7 +52,6 @@ public class MimicEnemy : EnemyBase
             MimicEnemy mimic = (MimicEnemy)enemy;
             Debug.Log("Entering Sleep State");
 
-            // Transform into the given disguise (passed from the inspector or game logic)
             mimic.TransformIntoDisguise(mimic.disguiseObject);
             mimic.SetVisibility(false);
             mimic.SetCollision(false);
@@ -60,8 +59,33 @@ public class MimicEnemy : EnemyBase
 
         public override void UpdateState(EnemyBase enemy)
         {
-            // Logic can be added here if needed
+            MimicEnemy mimic = (MimicEnemy)enemy;
 
+            // Check if the player is within detection range
+            float distanceToPlayer = Vector3.Distance(mimic.transform.position, mimic.player.position);
+            if (distanceToPlayer <= mimic.detectionRange)
+            {
+                // Transition to RevealState if the player is nearby
+                mimic.TransitionToState(mimic.revealState);
+            }
+        }
+    }
+
+    private class RevealState : EnemyBase.EnemyState
+    {
+        public override void EnterState(EnemyBase enemy)
+        {
+            MimicEnemy mimic = (MimicEnemy)enemy;
+            Debug.Log("Entering Reveal State");
+
+            // Make the enemy visible and collidable again
+            mimic.SetVisibility(true);
+            mimic.SetCollision(true);
+        }
+
+        public override void UpdateState(EnemyBase enemy)
+        {
+            // Additional behavior for RevealState can be added here
         }
     }
 }
