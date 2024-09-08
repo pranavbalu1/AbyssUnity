@@ -6,10 +6,12 @@ public class MimicEnemy : EnemyBase
     public GameObject disguiseObject; // Prefab for the disguise object
     public float spawnHeight = 2f; // How far above the enemy the disguise spawns
     public float detectionRange = 5f; // Range within which the player will trigger the reveal
+    public float chaseChance = 1f; // 100% chance to move to ChaseState
 
     private GameObject currentDisguise;
     private SleepState sleepState = new SleepState();
     private RevealState revealState = new RevealState();
+    private ChaseState chaseState = new ChaseState(); // New ChaseState
 
     private void Start()
     {
@@ -88,16 +90,25 @@ public class MimicEnemy : EnemyBase
                 mimic.currentDisguise.SetActive(false);
             }
 
-            // Immediately teleport to a hidden location if the player is obstructed
-            if (!mimic.IsPlayerObstructed())
+            // 20% chance to transition to ChaseState
+            if (Random.value <= mimic.chaseChance)
             {
-                Vector3 teleportPosition = FindHiddenLocation(mimic);
-                mimic.agent.Warp(teleportPosition); // Teleport the enemy using NavMeshAgent
-                Debug.Log("Teleporting to a hidden location!");
+                Debug.Log("20% chance triggered, transitioning to ChaseState!");
+                mimic.TransitionToState(mimic.chaseState);
             }
             else
             {
-                Debug.Log("No obstruction detected, not teleporting.");
+                // Teleport to a hidden location if the player is obstructed
+                if (!mimic.IsPlayerObstructed())
+                {
+                    Vector3 teleportPosition = FindHiddenLocation(mimic);
+                    mimic.agent.Warp(teleportPosition); // Teleport the enemy using NavMeshAgent
+                    Debug.Log("Teleporting to a hidden location!");
+                }
+                else
+                {
+                    Debug.Log("No obstruction detected, not teleporting.");
+                }
             }
         }
 
@@ -123,6 +134,32 @@ public class MimicEnemy : EnemyBase
                 Debug.Log("No valid teleport position found. Using current position.");
                 // If no valid position is found, return the current position as a fallback
                 return mimic.transform.position;
+            }
+        }
+    }
+
+    private class ChaseState : EnemyBase.EnemyState
+    {
+        public override void EnterState(EnemyBase enemy)
+        {
+            MimicEnemy mimic = (MimicEnemy)enemy;
+            mimic.agent.isStopped = false;
+        }
+
+        public override void UpdateState(EnemyBase enemy)
+        {
+            MimicEnemy mimic = (MimicEnemy)enemy;
+            float distanceToPlayer = Vector3.Distance(mimic.transform.position, mimic.player.position);
+
+            if (distanceToPlayer > mimic.enemyReach)
+            {
+                mimic.agent.isStopped = false;
+                mimic.agent.SetDestination(mimic.player.position);
+            }
+            else
+            {
+                mimic.agent.isStopped = true;
+                mimic.agent.SetDestination(mimic.transform.position);
             }
         }
     }
