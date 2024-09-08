@@ -67,6 +67,25 @@ public abstract class EnemyBase : MonoBehaviour
         return true;
     }
 
+    // Method to set the visibility of the enemy
+    public void SetVisibility(bool isVisible)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.enabled = isVisible;
+        }
+    }
+
+    // Method to set the collision of the enemy
+    public void SetCollision(bool isCollidable)
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+        foreach (Collider collider in colliders)
+        {
+            collider.enabled = isCollidable;
+        }
+    }
 
     // Base state class for shared state behavior
     public abstract class EnemyState

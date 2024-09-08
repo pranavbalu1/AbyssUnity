@@ -36,7 +36,7 @@ public class Enemy2 : EnemyBase
     {
         public override void EnterState(EnemyBase enemy)
         {
-            Enemy2 enemy2 = (Enemy2)enemy;
+            Enemy2 enemy2 = (Enemy2) enemy;
             Debug.Log("Entering Sleep State");
             Vector3 hideSpot = FindBestCover(enemy2);
             if (hideSpot != enemy2.transform.position)
