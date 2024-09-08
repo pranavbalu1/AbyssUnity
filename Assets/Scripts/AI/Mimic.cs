@@ -67,6 +67,7 @@ public class MimicEnemy : EnemyBase
             {
                 // Transition to RevealState if the player is nearby
                 mimic.TransitionToState(mimic.revealState);
+
             }
         }
     }
@@ -81,6 +82,7 @@ public class MimicEnemy : EnemyBase
             // Make the enemy visible and collidable again
             mimic.SetVisibility(true);
             mimic.SetCollision(true);
+            mimic.currentDisguise.SetActive(false);
         }
 
         public override void UpdateState(EnemyBase enemy)
