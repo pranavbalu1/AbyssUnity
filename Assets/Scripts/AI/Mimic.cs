@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -75,11 +74,6 @@ public class MimicEnemy : EnemyBase
 
     private class RevealState : EnemyBase.EnemyState
     {
-        private float teleportCooldown = 3f;
-        private float teleportChance = 0.5f; // 50% chance to teleport
-        private bool hasTeleported = false;
-        private float timeSinceReveal = 0f; // Track the time spent in RevealState
-
         public override void EnterState(EnemyBase enemy)
         {
             MimicEnemy mimic = (MimicEnemy)enemy;
@@ -88,43 +82,28 @@ public class MimicEnemy : EnemyBase
             // Make the enemy visible and collidable again
             mimic.SetVisibility(true);
             mimic.SetCollision(true);
+
             if (mimic.currentDisguise != null)
             {
                 mimic.currentDisguise.SetActive(false);
             }
 
-            // Reset state variables
-            hasTeleported = false;
-            timeSinceReveal = 0f;
+            // Immediately teleport to a hidden location if the player is obstructed
+            if (!mimic.IsPlayerObstructed())
+            {
+                Vector3 teleportPosition = FindHiddenLocation(mimic);
+                mimic.agent.Warp(teleportPosition); // Teleport the enemy using NavMeshAgent
+                Debug.Log("Teleporting to a hidden location!");
+            }
+            else
+            {
+                Debug.Log("No obstruction detected, not teleporting.");
+            }
         }
 
         public override void UpdateState(EnemyBase enemy)
         {
-            MimicEnemy mimic = (MimicEnemy)enemy;
-
-            // Update the timer
-            timeSinceReveal += Time.deltaTime;
-
-            // Check if teleport cooldown has passed
-            if (timeSinceReveal >= teleportCooldown && !hasTeleported)
-            {
-                if (Random.value <= teleportChance)
-                {
-                    if (mimic.IsPlayerObstructed()) 
-                    {
-                        // Perform teleportation logic here
-                        Debug.Log("Player is obstructed. Teleporting to a new hidden location!");
-
-                        Vector3 teleportPosition = FindHiddenLocation(mimic);
-                        mimic.agent.Warp(teleportPosition); // Teleport the enemy using NavMeshAgent
-                        hasTeleported = true;
-                    }
-                    else
-                    {
-                        Debug.Log("Player is not obstructed. No teleportation.");
-                    }
-                }
-            }
+            // Additional behavior for RevealState can be added here if necessary
         }
 
         private Vector3 FindHiddenLocation(MimicEnemy mimic)
@@ -136,7 +115,7 @@ public class MimicEnemy : EnemyBase
             // Ensure the teleport position is valid by checking the NavMesh
             if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, 10f, NavMesh.AllAreas))
             {
-                Debug.Log("Valid teleport position found!");
+                Debug.Log("Valid teleport position found!" + hit.position);
                 return hit.position;
             }
             else
