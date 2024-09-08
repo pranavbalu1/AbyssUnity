@@ -122,6 +122,7 @@ public class EnemyAI : EnemyBase
             }
 
             return false;
+
         }
     }
 
