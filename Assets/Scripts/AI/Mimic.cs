@@ -6,7 +6,7 @@ public class MimicEnemy : EnemyBase
     public GameObject disguiseObject; // Prefab for the disguise object
     public float spawnHeight = 2f; // How far above the enemy the disguise spawns
     public float detectionRange = 5f; // Range within which the player will trigger the reveal
-    public float chaseChance = 1f; // 100% chance to move to ChaseState
+    public float chaseChance = 0.5f; // 100% chance to move to ChaseState
 
     private GameObject currentDisguise;
     private SleepState sleepState = new SleepState();
@@ -90,10 +90,12 @@ public class MimicEnemy : EnemyBase
                 mimic.currentDisguise.SetActive(false);
             }
 
+            float randValue = Random.value;
             // 20% chance to transition to ChaseState
-            if (Random.value <= mimic.chaseChance)
+            if (randValue < mimic.chaseChance)
             {
-                Debug.Log("20% chance triggered, transitioning to ChaseState!");
+                
+                Debug.Log("20% chance triggered, transitioning to ChaseState!" + randValue);
                 mimic.TransitionToState(mimic.chaseState);
             }
             else
@@ -143,14 +145,17 @@ public class MimicEnemy : EnemyBase
         public override void EnterState(EnemyBase enemy)
         {
             MimicEnemy mimic = (MimicEnemy)enemy;
-            mimic.agent.isStopped = false;
+            Debug.Log("Entering Chase State");
+
         }
 
         public override void UpdateState(EnemyBase enemy)
         {
             MimicEnemy mimic = (MimicEnemy)enemy;
             float distanceToPlayer = Vector3.Distance(mimic.transform.position, mimic.player.position);
-
+            
+            Debug.Log("Chasing player");
+            
             if (distanceToPlayer > mimic.enemyReach)
             {
                 mimic.agent.isStopped = false;
@@ -160,7 +165,9 @@ public class MimicEnemy : EnemyBase
             {
                 mimic.agent.isStopped = true;
                 mimic.agent.SetDestination(mimic.transform.position);
+                mimic.TransitionToState(mimic.revealState);
             }
+
         }
     }
 }
