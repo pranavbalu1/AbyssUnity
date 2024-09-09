@@ -6,12 +6,14 @@ public class MimicEnemy : EnemyBase
     public GameObject disguiseObject; // Prefab for the disguise object
     public float spawnHeight = 2f; // How far above the enemy the disguise spawns
     public float detectionRange = 5f; // Range within which the player will trigger the reveal
-    public float chaseChance = 0.5f; // 100% chance to move to ChaseState
+    public float chaseChance = 0.5f; // Chance to move to ChaseState (50% in this case)
+    public float warpCooldown = 2f; // Cooldown between each warp
 
     private GameObject currentDisguise;
     private SleepState sleepState = new SleepState();
     private RevealState revealState = new RevealState();
     private ChaseState chaseState = new ChaseState(); // New ChaseState
+    private float lastWarpTime; // Time of the last warp
 
     private void Start()
     {
@@ -89,34 +91,27 @@ public class MimicEnemy : EnemyBase
             {
                 mimic.currentDisguise.SetActive(false);
             }
-
-            float randValue = Random.value;
-            // 20% chance to transition to ChaseState
-            if (randValue < mimic.chaseChance)
-            {
-                
-                Debug.Log("20% chance triggered, transitioning to ChaseState!" + randValue);
-                mimic.TransitionToState(mimic.chaseState);
-            }
-            else
-            {
-                // Teleport to a hidden location if the player is obstructed
-                if (!mimic.IsPlayerObstructed())
-                {
-                    Vector3 teleportPosition = FindHiddenLocation(mimic);
-                    mimic.agent.Warp(teleportPosition); // Teleport the enemy using NavMeshAgent
-                    Debug.Log("Teleporting to a hidden location!");
-                }
-                else
-                {
-                    Debug.Log("No obstruction detected, not teleporting.");
-                }
-            }
         }
 
         public override void UpdateState(EnemyBase enemy)
         {
-            // Additional behavior for RevealState can be added here if necessary
+            MimicEnemy mimic = (MimicEnemy)enemy;
+            // Teleport to a hidden location if the player is obstructed and cooldown has passed
+            if (!mimic.IsPlayerObstructed() && Time.time - mimic.lastWarpTime >= mimic.warpCooldown)
+            {
+                Vector3 teleportPosition = FindHiddenLocation(mimic);
+                if (teleportPosition != mimic.transform.position)
+                {
+                    mimic.agent.Warp(teleportPosition); // Teleport the enemy using NavMeshAgent
+                    mimic.lastWarpTime = Time.time; // Update the last warp time
+                    Debug.Log("Teleporting to a hidden location!");
+                }
+                else
+                {
+                    mimic.TransitionToState(mimic.chaseState);
+                }
+            }
+            Debug.Log("Reveal Update");
         }
 
         private Vector3 FindHiddenLocation(MimicEnemy mimic)
@@ -128,7 +123,7 @@ public class MimicEnemy : EnemyBase
             // Ensure the teleport position is valid by checking the NavMesh
             if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, 10f, NavMesh.AllAreas))
             {
-                Debug.Log("Valid teleport position found!" + hit.position);
+                Debug.Log("Valid teleport position found! Position: " + hit.position);
                 return hit.position;
             }
             else
@@ -146,16 +141,15 @@ public class MimicEnemy : EnemyBase
         {
             MimicEnemy mimic = (MimicEnemy)enemy;
             Debug.Log("Entering Chase State");
-
         }
 
         public override void UpdateState(EnemyBase enemy)
         {
             MimicEnemy mimic = (MimicEnemy)enemy;
             float distanceToPlayer = Vector3.Distance(mimic.transform.position, mimic.player.position);
-            
+
             Debug.Log("Chasing player");
-            
+
             if (distanceToPlayer > mimic.enemyReach)
             {
                 mimic.agent.isStopped = false;
@@ -167,7 +161,6 @@ public class MimicEnemy : EnemyBase
                 mimic.agent.SetDestination(mimic.transform.position);
                 mimic.TransitionToState(mimic.revealState);
             }
-
         }
     }
 }
