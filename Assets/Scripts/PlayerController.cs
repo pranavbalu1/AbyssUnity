@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     public Camera playerCamera;
     public float walkSpeed = 6f;
@@ -34,6 +35,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner) return;
         // Handle player movement
         HandleMovement();
 
