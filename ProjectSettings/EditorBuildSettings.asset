@@ -4,5 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/NGO_Minimal_Setup/NGO_Setup.unity
+    guid: 8310cfea3624806419915cf19a6156ae
+  - enabled: 1
+    path: Assets/Scenes/World/World.unity
+    guid: 5f671704f8b079e41b795d7cc2ea2dbc
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
